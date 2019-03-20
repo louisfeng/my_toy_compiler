@@ -1,6 +1,7 @@
 #include <iostream>
 #include "codegen.h"
 #include "node.h"
+#include "ngraph.h"
 
 using namespace std;
 
@@ -11,6 +12,8 @@ void createCoreFunctions(CodeGenContext& context);
 
 int main(int argc, char **argv)
 {
+  run_ngraph();
+  return 0;
 	yyparse();
 	cout << programBlock << endl;
     // see http://comments.gmane.org/gmane.comp.compilers.llvm.devel/33877
