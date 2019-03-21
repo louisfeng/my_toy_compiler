@@ -32,6 +32,34 @@ void CodeGenContext::generateCode(NBlock& root)
 	pm.run(*module);
 }
 
+/* Compile the AST into a module */
+void CodeGenContext::generateObj(NBlock& root)
+{
+  std::cout << "Generating object file...\n";
+
+  /* Create the top level interpreter function to call as entry */
+  vector<Type*> argTypes;
+  FunctionType *ftype = FunctionType::get(Type::getVoidTy(MyContext), makeArrayRef(argTypes), false);
+  mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
+  BasicBlock *bblock = BasicBlock::Create(MyContext, "entry", mainFunction, 0);
+
+  /* Push a new variable/block context */
+  pushBlock(bblock);
+  root.codeGen(*this); /* emit bytecode for the toplevel block */
+  ReturnInst::Create(MyContext, bblock);
+  popBlock();
+
+  /* Print the bytecode in a human-readable format
+     to see if our program compiled properly
+   */
+  std::cout << "Code is generated.\n";
+  // module->dump();
+
+  legacy::PassManager pm;
+  pm.add(createPrintModulePass(outs()));
+  pm.run(*module);
+}
+
 /* Executes the AST by running the main function */
 GenericValue CodeGenContext::runCode() {
 	std::cout << "Running code...\n";
